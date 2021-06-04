@@ -1,6 +1,5 @@
 package nsu.seabattle.model;
 
-import nsu.seabattle.model.player.Shot;
 import nsu.seabattle.model.ship.Position;
 import nsu.seabattle.model.ship.Ship;
 
@@ -13,9 +12,9 @@ public class Field {
     private final int width;
     private final int height;
 
-    private void clearField(){
-        for(int i=0;i<height;i++){
-            for(int j=0;j<width;j++){
+    private void clearField() {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 field[i][j] = '-';
             }
         }
@@ -39,7 +38,7 @@ public class Field {
                 current = new Position(ship.end());
                 last = ship.start();
             }
-            while(!current.equals(last)){
+            while (!current.equals(last)) {
                 field[current.y][current.x] = '#';
                 current.y++;
             }
@@ -51,7 +50,7 @@ public class Field {
                 current = new Position(ship.end());
                 last = ship.start();
             }
-            while(!current.equals(last)) {
+            while (!current.equals(last)) {
                 field[current.y][current.x] = '#';
                 current.x++;
             }
@@ -80,24 +79,24 @@ public class Field {
         return Shot.REPEAT;
     }
 
-    private void setKilledShip(Position position){
+    private void setKilledShip(Position position) {
         if (position.x >= width || position.x < 0) return;
         if (position.y >= height || position.y < 0) return;
-        if(field[position.y][position.x] == '*'){
+        if (field[position.y][position.x] == '*') {
             field[position.y][position.x] = '@';
-            setKilledShip(new Position(position.x-1,position.y));
-            setKilledShip(new Position(position.x+1,position.y));
-            setKilledShip(new Position(position.x,position.y-1));
-            setKilledShip(new Position(position.x,position.y+1));
+            setKilledShip(new Position(position.x - 1, position.y));
+            setKilledShip(new Position(position.x + 1, position.y));
+            setKilledShip(new Position(position.x, position.y - 1));
+            setKilledShip(new Position(position.x, position.y + 1));
         }
     }
 
-    private boolean isAliveShip(List<Position> injuredPositions, Position position){
+    private boolean isAliveShip(List<Position> injuredPositions, Position position) {
         if (position.x >= width || position.x < 0) return false;
         if (position.y >= height || position.y < 0) return false;
-        if(field[position.y][position.x] == '#') return true;
+        if (field[position.y][position.x] == '#') return true;
         if (field[position.y][position.x] == '*') {
-            if(!injuredPositions.contains(position)){
+            if (!injuredPositions.contains(position)) {
                 injuredPositions.add(position);
                 return isAliveShipAroundPosition(injuredPositions, position);
             }
@@ -105,24 +104,24 @@ public class Field {
         return false;
     }
 
-    private boolean isAliveShipAroundPosition(List<Position> injuredPositions, Position position){
-        if(field[position.y][position.x] == '#') return true;
-        if(isAliveShip(injuredPositions, new Position(position.x-1,position.y))) return true;
-        if(isAliveShip(injuredPositions, new Position(position.x+1,position.y))) return true;
-        if(isAliveShip(injuredPositions, new Position(position.x,position.y-1))) return true;
+    private boolean isAliveShipAroundPosition(List<Position> injuredPositions, Position position) {
+        if (field[position.y][position.x] == '#') return true;
+        if (isAliveShip(injuredPositions, new Position(position.x - 1, position.y))) return true;
+        if (isAliveShip(injuredPositions, new Position(position.x + 1, position.y))) return true;
+        if (isAliveShip(injuredPositions, new Position(position.x, position.y - 1))) return true;
         return isAliveShip(injuredPositions, new Position(position.x, position.y + 1));
     }
 
-    private boolean injuredShipIsAlive(Position position){
+    private boolean injuredShipIsAlive(Position position) {
         List<Position> injuredPositions = new ArrayList<>();
         injuredPositions.add(position);
         return isAliveShipAroundPosition(injuredPositions, position);
     }
 
     public boolean hasAliveShips() {
-        for(int i=0;i<height;i++){
-            for(int j=0;j<width;j++){
-                if(field[i][j] == '#') return true;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (field[i][j] == '#') return true;
             }
         }
         return false;
@@ -130,15 +129,32 @@ public class Field {
 
     public String getField(boolean hideShips) {
         StringBuilder string = new StringBuilder();
-        for(int i=0;i<height;i++){
-            for(int j=0;j<width;j++){
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 char sym = field[i][j];
-                if(sym == '#' && hideShips) {
+                if (sym == '#' && hideShips) {
                     string.append('-');
-                }
-                else string.append(sym);
+                } else string.append(sym);
             }
         }
         return string.toString();
+    }
+
+    public String[] getStatistics() {
+        int hits = 0;
+        int misses = 0;
+        int shots;
+        int aliveDecks = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                switch (field[x][y]) {
+                    case '#' -> aliveDecks++;
+                    case '*', '@' -> hits++;
+                    case '~' -> misses++;
+                }
+            }
+        }
+        shots = hits + misses;
+        return new String[]{Integer.toString(shots), Integer.toString(hits), Integer.toString(misses), Integer.toString(aliveDecks)};
     }
 }

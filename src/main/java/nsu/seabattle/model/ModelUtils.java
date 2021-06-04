@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModelUtils {
+
     private static int randomize(int interval) {
         return (int) (Math.random() * interval);
     }
@@ -35,7 +36,7 @@ public class ModelUtils {
                 current.x++;
             }
         }
-        ships.add(new Ship(firstCoordinate,lastCoordinate));
+        ships.add(new Ship(firstCoordinate, lastCoordinate));
     }
 
     private static boolean checkUserCoordinateForShip(Config config, char[][] field, int x, int y) {
@@ -146,8 +147,8 @@ public class ModelUtils {
 
     public static List<Ship> generateShips(Config config) {
         char[][] field = new char[config.fieldHeight][config.fieldWidth];
-        for(int i = 0;i< config.fieldHeight;i++){
-            for(int j=0;j< config.fieldWidth;j++){
+        for (int i = 0; i < config.fieldHeight; i++) {
+            for (int j = 0; j < config.fieldWidth; j++) {
                 field[i][j] = '-';
             }
         }
@@ -161,4 +162,5 @@ public class ModelUtils {
         }
         return ships;
     }
+
 }

@@ -18,7 +18,7 @@ public class Computer {
         destroyedCoordinatesOnLastStep = new ArrayList<>();
     }
 
-    public void resetFindShip(){
+    public void resetFindShip() {
         inFindOfShip = false;
         destroyedCoordinatesOnLastStep.clear();
     }

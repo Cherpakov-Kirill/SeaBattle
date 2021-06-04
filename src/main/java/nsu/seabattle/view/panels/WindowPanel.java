@@ -1,4 +1,6 @@
-package nsu.seabattle.view;
+package nsu.seabattle.view.panels;
+
+import nsu.seabattle.view.windows.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +11,7 @@ public class WindowPanel extends JPanel {
     private ImageIcon imageIcon;
 
     public void setImageIcon(String fileName) {
-        URL file = Frame.class.getResource(fileName);
+        URL file = MainWindow.class.getResource(fileName);
         if (file == null) {
             BufferedImage defaultBackground = new BufferedImage(1300, 943, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = defaultBackground.createGraphics();
@@ -24,7 +26,7 @@ public class WindowPanel extends JPanel {
         repaint();
     }
 
-    WindowPanel(String fileName) {
+    public WindowPanel(String fileName) {
         setImageIcon(fileName);
     }
 

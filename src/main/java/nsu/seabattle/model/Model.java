@@ -3,12 +3,17 @@ package nsu.seabattle.model;
 import nsu.seabattle.config.Config;
 import nsu.seabattle.model.player.Computer;
 import nsu.seabattle.model.player.Player;
-import nsu.seabattle.model.player.Shot;
 import nsu.seabattle.model.ship.Position;
 import nsu.seabattle.model.ship.Ship;
 import nsu.seabattle.presenter.FieldListener;
 
 import java.util.List;
+
+/// # - alive ship
+/// @ - dead ship
+/// * - injured ship
+/// ~ - miss
+/// - - empty
 
 public class Model {
     private final Config config;
@@ -39,7 +44,7 @@ public class Model {
     }
 
     public void shoot(int positionNumber) {
-        if(winner != null) return;
+        if (winner != null) return;
         Position position = new Position(positionNumber % config.fieldWidth, positionNumber / config.fieldWidth);
         Shot shot = computerField.shoot(position);
         switch (shot) {
@@ -63,13 +68,21 @@ public class Model {
         listener.updateGameField(winner);
     }
 
+    public String[] getUserFieldStatistics() {
+        return userField.getStatistics();
+    }
+
+    public String[] getComputerFieldStatistics() {
+        return computerField.getStatistics();
+    }
+
     private void makeComputerMove() {
         Shot shot;
         do {
             Position position = computer.getCoordinateForStep(userField.getField(true));
             shot = userField.shoot(position);
-            if(shot == Shot.HIT) computer.setHit(position);
-            if(shot == Shot.KILL) computer.resetFindShip();
+            if (shot == Shot.HIT) computer.setHit(position);
+            if (shot == Shot.KILL) computer.resetFindShip();
         } while (shot != Shot.MISS);
     }
 

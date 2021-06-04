@@ -1,4 +1,4 @@
-package nsu.seabattle.model.player;
+package nsu.seabattle.model;
 
 public enum Shot {
     HIT, MISS, KILL, REPEAT
