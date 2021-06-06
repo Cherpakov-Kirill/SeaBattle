@@ -5,6 +5,9 @@ plugins {
 group 'nsu.seabattle'
 version '1.0-SNAPSHOT'
 
+targetCompatibility = JavaVersion.VERSION_16
+sourceCompatibility = JavaVersion.VERSION_16
+
 repositories {
     mavenCentral()
 }
