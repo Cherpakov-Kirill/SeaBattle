@@ -9,7 +9,9 @@ import nsu.seabattle.view.View;
 import java.util.List;
 
 public class Presenter implements FieldListener {
+    // CR: i think it should be a field in a view class
     private static final String COMPUTER_NAME = "Computer";
+    // CR: i think it should be a field in a view class
     private String userName;
     private final Config config;
     private final View view;
@@ -24,6 +26,8 @@ public class Presenter implements FieldListener {
     }
 
     public void launchTheStartWindow() {
+        // CR: i think this method is too complex, all you need to do is to call startPanel.setVisible(false) in constructor
+        // CR: and in this method startPanel.setVisible(true)
         view.launchTheStartWindow();
     }
 

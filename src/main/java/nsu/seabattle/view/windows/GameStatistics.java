@@ -12,6 +12,7 @@ public class GameStatistics {
         statFrame.setResizable(false);
         statFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         statFrame.setSize(500, 150);
+        // CR: use non default ctor
         DefaultTableModel tableModelOfStat = new DefaultTableModel();
         JTable tableOfStatistics = new JTable(tableModelOfStat);
         tableModelOfStat.addColumn(" ");

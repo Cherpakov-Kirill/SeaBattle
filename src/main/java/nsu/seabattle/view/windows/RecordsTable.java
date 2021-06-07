@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+// CR: better to make it private nested class
 record PlayerRecord(String name, int shots) {
     public static int compare(PlayerRecord left, PlayerRecord right) {
         return Integer.compare(left.shots, right.shots);
@@ -29,11 +30,13 @@ public class RecordsTable {
         recordsFrame = new JFrame(RECORDS_TABLE);
         recordsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         recordsFrame.setSize(500, 400);
+        // CR: i guess we should create table in else branch
         if (file != null) {
             Properties props = new Properties();
             try {
                 props.load(file);
             } catch (IOException e) {
+                // CR: rewrite file with empty?
                 e.printStackTrace();
             }
             Set<Object> names = props.keySet();
@@ -42,6 +45,7 @@ public class RecordsTable {
                 PlayerRecord p = new PlayerRecord(name, Integer.parseInt(props.getProperty(name)));
                 rating.add(p);
             }
+            // CR: Collections.sort
             rating.sort(PlayerRecord::compare);
             recordsFrame.add(new JScrollPane(new JTable(getTableModel(rating))));
             recordsFrame.setVisible(true);
@@ -102,11 +106,13 @@ public class RecordsTable {
     }
 
     private static DefaultTableModel getTableModel(List<PlayerRecord> rating) {
+        // CR: better to use non-default constructor with column names
         DefaultTableModel tableModel = new DefaultTableModel();
         tableModel.addColumn("#");
         tableModel.addColumn("Name");
         tableModel.addColumn("Shots");
         int position = 0;
+        // CR: iterate with index
         for (PlayerRecord p : rating) {
             tableModel.insertRow(position, new Object[]{Integer.toString(position + 1), p.name(), Integer.toString(p.shots())});
             position++;

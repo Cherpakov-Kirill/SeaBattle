@@ -23,6 +23,7 @@ public class GamePanel extends ShipsPanel {
 
         for (int y = 0; y < fieldHeight; y++) {
             for (int x = 0; x < fieldWidth; x++) {
+                // CR: button init is the same here and in SettingShips panel, can be moved to some ViewUtils and called
                 userButtons[y][x] = new JButton();
                 userButtons[y][x].setPreferredSize(new Dimension(50, 50));
                 userButtons[y][x].setIcon(empty);

@@ -30,6 +30,7 @@ public class Config {
     }
 
     public Color getColorForButton(ButtonsIcons type) {
+        // CR: i think it's better to store this info inside ButtonIcons enum
         return colorsForButtons[type.ordinal()];
     }
 

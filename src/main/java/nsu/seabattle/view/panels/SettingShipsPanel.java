@@ -43,6 +43,7 @@ public class SettingShipsPanel extends ShipsPanel {
         Dimension settingShipsSize = settingShips.getPreferredSize();
         settingShips.setBounds(400, 100, settingShipsSize.width, settingShipsSize.height);
         this.add(settingShips);
+        // CR: what if config says that there's no 4 deck ships? (also please handle negative values in config)
         numberOfDecks = 4;
         numberOfCurrType = 0;
         numberOfShip = 0;
@@ -58,6 +59,7 @@ public class SettingShipsPanel extends ShipsPanel {
     private void setCoordinateOfNewShip(int buttonNumber) {
         Position newCoordinate = getPositionOfNewShip(buttonNumber);
         if (lastCoordinates == null) {
+            // CR: it's better to have this assignemnt at the end, and check the conditions first
             lastCoordinates = newCoordinate;
             if (numberOfDecks == 1) {
                 lastCoordinates = null;
@@ -69,10 +71,13 @@ public class SettingShipsPanel extends ShipsPanel {
                     }
                 }
             }
+            // CR: check is done twice if ship has only one deck
             if (checkIntervalOnMapUser(newCoordinate, newCoordinate)) {
                 field.setCharAt(newCoordinate.y * config.fieldWidth + newCoordinate.x, '#');
                 updateSettingShipsField(field.toString());
-            } else lastCoordinates = null;
+            } else {
+                lastCoordinates = null;
+            }
             return;
         }
         Position first = lastCoordinates;
@@ -87,6 +92,7 @@ public class SettingShipsPanel extends ShipsPanel {
         }
 
         ships.add(new Ship(first, newCoordinate));
+        // CR: looks too complex to me, probably can rewrite easily?
         if (first.x == newCoordinate.x) {
             int startY;
             int finishY;
@@ -137,7 +143,9 @@ public class SettingShipsPanel extends ShipsPanel {
         return field.charAt(y * config.fieldWidth + x) == '#';
     }
 
+    // CR: naming
     private boolean checkIntervalOnMapUser(Position FirstPair, Position LastPair) {
+        // CR: how this even possible? i guess you can throw some kind of exception if this happened
         if (FirstPair.x >= config.fieldWidth || FirstPair.x < 0) return false;
         if (FirstPair.y >= config.fieldHeight || FirstPair.y < 0) return false;
         if (LastPair.x >= config.fieldWidth || LastPair.x < 0) return false;
@@ -154,6 +162,7 @@ public class SettingShipsPanel extends ShipsPanel {
                 yPosStart = LastPair.y;
                 yPosFinish = FirstPair.y;
             }
+            // CR: can be merged with while
             if (checkUserCoordinateForShip(xPos, yPosStart - 1)) return false;
             if (checkUserCoordinateForShip(xPos + 1, yPosStart - 1)) return false;
             if (checkUserCoordinateForShip(xPos - 1, yPosStart - 1)) return false;
@@ -172,6 +181,7 @@ public class SettingShipsPanel extends ShipsPanel {
             int yPos = FirstPair.y;
             int xPosStart;
             int xPosFinish;
+            // CR: with ternary operator you can write it in declarations
             if (FirstPair.x < LastPair.x) {
                 xPosStart = FirstPair.x;
                 xPosFinish = LastPair.x;
@@ -179,6 +189,7 @@ public class SettingShipsPanel extends ShipsPanel {
                 xPosStart = LastPair.x;
                 xPosFinish = FirstPair.x;
             }
+            // CR: this ifs can be merged with while
             if (checkUserCoordinateForShip(xPosStart - 1, yPos)) return false;
             if (checkUserCoordinateForShip(xPosStart - 1, yPos + 1)) return false;
             if (checkUserCoordinateForShip(xPosStart - 1, yPos - 1)) return false;

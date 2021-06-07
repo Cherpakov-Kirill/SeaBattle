@@ -27,6 +27,7 @@ public class Model {
         int width = config.fieldWidth;
         int height = config.fieldHeight;
         Field userField = new Field(width, height);
+        // CR: better to pass plain objects in this case, width, height, ships
         if (userShips == null) userShips = ModelUtils.generateShips(config);
         userShips.forEach(userField::addShip);
         Field computerField = new Field(width, height);
@@ -38,6 +39,7 @@ public class Model {
     public Model(Config config, Field userField, Field computerField) {
         this.config = config;
         computer = new Computer(config);
+        // CR: initialized to zero by default
         winner = null;
         this.userField = userField;
         this.computerField = computerField;

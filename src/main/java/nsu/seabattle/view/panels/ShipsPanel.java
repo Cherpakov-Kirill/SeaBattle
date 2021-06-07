@@ -4,6 +4,8 @@ import nsu.seabattle.config.Config;
 
 import javax.swing.*;
 
+// CR: I'm not a big fan of using inheritance here
+// CR: it would be better to have static method updateField in utils and some class that contains ImageIcon (maybe ButtonIcons)
 public class ShipsPanel extends WindowPanel {
     protected final Config config;
     protected final int fieldWidth;

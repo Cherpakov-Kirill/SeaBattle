@@ -6,11 +6,13 @@ import javax.swing.*;
 import java.awt.*;
 
 public class StartPanel extends WindowPanel {
+    // CR: not used fields
     private final Config config;
     private final int fieldWidth;
     private final int fieldHeight;
     private ClickListener listener;
 
+    // CR: why not just local variables
     private final JButton start;
     private final JButton rules;
     private final JButton close;
@@ -45,6 +47,7 @@ public class StartPanel extends WindowPanel {
         rules.setOpaque(false);
         this.add(rules);
 
+        // CR: all buttons are initialized in pretty much the same way, let's have a static method for it
         close = new JButton();
         close.setPreferredSize(new Dimension(375, 80));
         close.setFocusPainted(false);

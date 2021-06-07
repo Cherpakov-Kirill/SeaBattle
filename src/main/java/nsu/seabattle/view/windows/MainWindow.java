@@ -41,8 +41,10 @@ public class MainWindow extends JFrame implements View, ClickListener {
     public MainWindow(Config config) {
         super(NAME);
         startPanel = new StartPanel(config);
+        // CR: just pass as constructor parameter
         startPanel.setClickListener(this);
         this.config = config;
+        // CR: they are already null
         resetParameters();
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,6 +56,7 @@ public class MainWindow extends JFrame implements View, ClickListener {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu(MENU);
 
+        // CR: can have static method like createMenuItem(String name, ActionListener lister)
         JMenuItem newGameItem = new JMenuItem(NEW_GAME);
         JMenuItem ratingItem = new JMenuItem(RATING);
         JMenuItem exitItem = new JMenuItem(EXIT);
@@ -99,6 +102,8 @@ public class MainWindow extends JFrame implements View, ClickListener {
 
     private void closeWindow(Object obj) {
         if (obj != null) {
+            // CR: create interface Disposable with method dispose() and make all this classes implement it
+            // CR: then you won't have to check which class is this is window
             if (obj instanceof GameStatistics) ((GameStatistics) obj).dispose();
             else if (obj instanceof RecordsTable) ((RecordsTable) obj).dispose();
             else if (obj instanceof Rules) ((Rules) obj).dispose();
@@ -193,6 +198,7 @@ public class MainWindow extends JFrame implements View, ClickListener {
     @Override
     public void openRules() {
         closeWindow(rules);
+        // CR: I think you may just hide it, not recreate
         rules = new Rules(config);
     }
 
