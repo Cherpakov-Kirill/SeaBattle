@@ -27,11 +27,10 @@ public class Model {
         int width = config.fieldWidth;
         int height = config.fieldHeight;
         Field userField = new Field(width, height);
-        // CR: better to pass plain objects in this case, width, height, ships
-        if (userShips == null) userShips = ModelUtils.generateShips(config);
+        if (userShips == null) userShips = ModelUtils.generateShips(width, height, config.ships);
         userShips.forEach(userField::addShip);
         Field computerField = new Field(width, height);
-        List<Ship> computerShips = ModelUtils.generateShips(config);
+        List<Ship> computerShips = ModelUtils.generateShips(width, height, config.ships);
         computerShips.forEach(computerField::addShip);
         return new Model(config, userField, computerField);
     }
@@ -39,8 +38,6 @@ public class Model {
     public Model(Config config, Field userField, Field computerField) {
         this.config = config;
         computer = new Computer(config);
-        // CR: initialized to zero by default
-        winner = null;
         this.userField = userField;
         this.computerField = computerField;
     }
@@ -51,23 +48,16 @@ public class Model {
         Shot shot = computerField.shoot(position);
         switch (shot) {
             case HIT, KILL -> {
-                boolean isWinner = checkWinner(computerField);
-                if (isWinner) {
-                    winner = Player.USER;
-                }
+                if (checkWinner(computerField)) winner = Player.USER;
+                listener.updateGameField(winner);
             }
             case MISS -> {
+                listener.updateGameField(winner);
                 makeComputerMove();
-                boolean isWinner = checkWinner(userField);
-                if (isWinner) {
-                    winner = Player.COMPUTER;
-                }
             }
             case REPEAT -> {
-                return;
             }
         }
-        listener.updateGameField(winner);
     }
 
     public String[] getUserFieldStatistics() {
@@ -81,10 +71,24 @@ public class Model {
     private void makeComputerMove() {
         Shot shot;
         do {
+            //I tried to set this sleep for 1 sec.
+            //When user makes a shot. Game should update field and after update it must sleep for 1 sec.
+            //But view had not update! It waited 1 sec. and after that view update user's shot and all computer's shots together.
+
+            //I need help with this problem.
+            /*
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }*/
+
             Position position = computer.getCoordinateForStep(userField.getField(true));
             shot = userField.shoot(position);
             if (shot == Shot.HIT) computer.setHit(position);
             if (shot == Shot.KILL) computer.resetFindShip();
+            if (checkWinner(userField)) winner = Player.COMPUTER;
+            listener.updateGameField(winner);
         } while (shot != Shot.MISS);
     }
 

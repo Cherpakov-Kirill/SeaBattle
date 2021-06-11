@@ -2,21 +2,19 @@ package nsu.seabattle.view.windows;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 
-// CR: better to make it private nested class
-record PlayerRecord(String name, int shots) {
-    public static int compare(PlayerRecord left, PlayerRecord right) {
-        return Integer.compare(left.shots, right.shots);
+public class RecordsTable implements Disposable {
+    private record PlayerRecord(String name, int shots) implements Comparable<PlayerRecord> {
+        @Override
+        public int compareTo(PlayerRecord o) {
+            return Integer.compare(this.shots, o.shots);
+        }
     }
-}
 
-public class RecordsTable {
     private static final String RECORDS_TABLE = "Table of the records";
-    private final InputStream file;
+    private final File file;
     private final List<PlayerRecord> rating;
     private String winnerName;
     private int winnerShots;
@@ -25,19 +23,22 @@ public class RecordsTable {
     private JFrame recordsFrame;
 
     public RecordsTable() {
-        file = getClass().getResourceAsStream("/tableOfRecords.properties");
+        file = new File("src/main/resources" + System.getProperty("file.separator") + "tableOfRecords.properties");
         rating = new ArrayList<>();
         recordsFrame = new JFrame(RECORDS_TABLE);
+        recordsFrame.setResizable(false);
         recordsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         recordsFrame.setSize(500, 400);
-        // CR: i guess we should create table in else branch
-        if (file != null) {
-            Properties props = new Properties();
+        Properties props = new Properties();
+        if (file.canRead()) {
             try {
-                props.load(file);
+                props.load(new FileInputStream(file));
             } catch (IOException e) {
-                // CR: rewrite file with empty?
-                e.printStackTrace();
+                try {
+                    if (file.createNewFile()) System.out.println("File is created!");
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
             Set<Object> names = props.keySet();
             for (Object o : names) {
@@ -45,11 +46,18 @@ public class RecordsTable {
                 PlayerRecord p = new PlayerRecord(name, Integer.parseInt(props.getProperty(name)));
                 rating.add(p);
             }
-            // CR: Collections.sort
-            rating.sort(PlayerRecord::compare);
+            Collections.sort(rating);
             recordsFrame.add(new JScrollPane(new JTable(getTableModel(rating))));
             recordsFrame.setVisible(true);
+        } else {
+            try {
+                if (file.createNewFile()) System.out.println("File is created!");
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
         }
+        recordsFrame.add(new JScrollPane(new JTable(getTableModel(rating))));
+        recordsFrame.setVisible(true);
     }
 
     public RecordsTable(String winnerName, int winnerShots) {
@@ -57,69 +65,69 @@ public class RecordsTable {
         this.winnerShots = winnerShots;
         newRecord = false;
         userPlayerRecord = null;
-        file = getClass().getResourceAsStream("/tableOfRecords.properties");
+        file = new File("src/main/resources" + System.getProperty("file.separator") + "tableOfRecords.properties");
         rating = new ArrayList<>();
         makeTable();
     }
 
     private void makeTable() {
-        if (file != null) {
-            Properties props = new Properties();
+        if (file.canRead()) {
             try {
-                props.load(file);
-            } catch (IOException e) {
-                e.printStackTrace();
+                if (file.createNewFile()) System.out.println("File is created!");
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
-            Set<Object> names = props.keySet();
-            for (Object o : names) {
-                String name = (String) o;
-                PlayerRecord p = new PlayerRecord(name, Integer.parseInt(props.getProperty(name)));
-                if (name.equals(winnerName)) {
-                    if (p.shots() > winnerShots) {
-                        p = new PlayerRecord(name, winnerShots);
-                        props.setProperty(name, Integer.toString(winnerShots));
-                        newRecord = true;
-                    }
-                    userPlayerRecord = p;
-                }
-                rating.add(p);
-            }
-            if (userPlayerRecord == null) {
-                PlayerRecord p = new PlayerRecord(winnerName, winnerShots);
-                props.setProperty(winnerName, Integer.toString(winnerShots));
-                rating.add(p);
-                newRecord = true;
-            }
-            rating.sort(PlayerRecord::compare);
-            try {
-                props.store(new FileWriter(Objects.requireNonNull(getClass().getResource("/tableOfRecords.properties")).getPath()), null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (newRecord) recordsFrame = new JFrame(RECORDS_TABLE + " - new record!");
-            else recordsFrame = new JFrame(RECORDS_TABLE);
-            recordsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            recordsFrame.setSize(500, 400);
-            recordsFrame.add(new JScrollPane(new JTable(getTableModel(rating))));
-            recordsFrame.setVisible(true);
         }
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Set<Object> names = props.keySet();
+        for (Object o : names) {
+            String name = (String) o;
+            PlayerRecord p = new PlayerRecord(name, Integer.parseInt(props.getProperty(name)));
+            if (name.equals(winnerName)) {
+                if (p.shots() > winnerShots) {
+                    p = new PlayerRecord(name, winnerShots);
+                    props.setProperty(name, Integer.toString(winnerShots));
+                    newRecord = true;
+                }
+                userPlayerRecord = p;
+            }
+            rating.add(p);
+        }
+        if (userPlayerRecord == null) {
+            PlayerRecord p = new PlayerRecord(winnerName, winnerShots);
+            props.setProperty(winnerName, Integer.toString(winnerShots));
+            rating.add(p);
+            newRecord = true;
+        }
+        Collections.sort(rating);
+        try {
+            props.store(new FileWriter(file), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (newRecord) recordsFrame = new JFrame(RECORDS_TABLE + " - new record!");
+        else recordsFrame = new JFrame(RECORDS_TABLE);
+        recordsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        recordsFrame.setSize(500, 400);
+        recordsFrame.add(new JScrollPane(new JTable(getTableModel(rating))));
+        recordsFrame.setVisible(true);
     }
 
     private static DefaultTableModel getTableModel(List<PlayerRecord> rating) {
-        // CR: better to use non-default constructor with column names
-        DefaultTableModel tableModel = new DefaultTableModel();
-        tableModel.addColumn("#");
-        tableModel.addColumn("Name");
-        tableModel.addColumn("Shots");
-        int position = 0;
-        // CR: iterate with index
-        for (PlayerRecord p : rating) {
-            tableModel.insertRow(position, new Object[]{Integer.toString(position + 1), p.name(), Integer.toString(p.shots())});
-            position++;
+        DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"#", "Name", "Shots"}, 0);
+        for (int i = 0; i < rating.size(); i++) {
+            PlayerRecord p = rating.get(i);
+            tableModel.insertRow(i, new Object[]{Integer.toString(i + 1), p.name(), Integer.toString(p.shots())});
         }
         return tableModel;
     }
 
+    @Override
     public void dispose() {
         recordsFrame.dispose();
     }

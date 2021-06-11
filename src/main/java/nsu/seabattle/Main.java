@@ -10,6 +10,6 @@ public class Main {
         Config config = new Config();
         View view = new MainWindow(config);
         Presenter presenter = new Presenter(config, view);
-        presenter.launchTheStartWindow();
+        presenter.launchTheGame();
     }
 }

@@ -1,26 +1,27 @@
 package nsu.seabattle.view.windows;
 
-import nsu.seabattle.config.Config;
 import nsu.seabattle.view.panels.WindowPanel;
 
 import javax.swing.*;
 
-public class Rules {
+public class Rules implements Disposable {
     private static final String GAME_RULES = "Game Rules";
     private final JFrame rulesFrame;
-    private final WindowPanel background;
 
-    Rules(Config config) {
+    Rules() {
         rulesFrame = new JFrame(GAME_RULES);
         rulesFrame.setResizable(false);
-        rulesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        rulesFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         rulesFrame.setSize(500, 707);
-        background = new WindowPanel(config.rulesBackground);
-        rulesFrame.setContentPane(background);
+        rulesFrame.setContentPane(new WindowPanel(System.getProperty("file.separator") + "Rules.png"));
         rulesFrame.repaint();
-        rulesFrame.setVisible(true);
     }
 
+    public void visible(boolean var) {
+        rulesFrame.setVisible(var);
+    }
+
+    @Override
     public void dispose() {
         rulesFrame.dispose();
     }

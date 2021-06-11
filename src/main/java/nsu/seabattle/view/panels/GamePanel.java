@@ -5,15 +5,22 @@ import nsu.seabattle.config.Config;
 import javax.swing.*;
 import java.awt.*;
 
-public class GamePanel extends ShipsPanel {
+public class GamePanel extends WindowPanel {
+    protected final Config config;
+    protected final int fieldWidth;
+    protected final int fieldHeight;
+    protected ClickListener listener;
     private final JPanel userField;
     private final JPanel enemyField;
     private final JButton[][] userButtons;
     private final JButton[][] enemyButtons;
 
-    public GamePanel(Config config) {
-        super(config, config.fieldBackground);
-
+    public GamePanel(Config config, ClickListener listener) {
+        super(System.getProperty("file.separator") + "Field.png");
+        this.config = config;
+        this.fieldWidth = config.fieldWidth;
+        this.fieldHeight = config.fieldHeight;
+        this.listener = listener;
         userField = new JPanel();
         userField.setLayout(new GridLayout(fieldHeight, fieldWidth));
         enemyField = new JPanel();
@@ -23,21 +30,11 @@ public class GamePanel extends ShipsPanel {
 
         for (int y = 0; y < fieldHeight; y++) {
             for (int x = 0; x < fieldWidth; x++) {
-                // CR: button init is the same here and in SettingShips panel, can be moved to some ViewUtils and called
-                userButtons[y][x] = new JButton();
-                userButtons[y][x].setPreferredSize(new Dimension(50, 50));
-                userButtons[y][x].setIcon(empty);
-                userButtons[y][x].setFocusPainted(false);
-                userButtons[y][x].setContentAreaFilled(false);
-
+                userButtons[y][x] = FieldButtons.initButtonForField(FieldButtons.empty);
                 userField.add(userButtons[y][x]);
                 int finalX = x;
                 int finalY = y;
-                enemyButtons[y][x] = new JButton();
-                enemyButtons[y][x].setPreferredSize(new Dimension(50, 50));
-                enemyButtons[y][x].setIcon(empty);
-                enemyButtons[y][x].setFocusPainted(false);
-                enemyButtons[y][x].setContentAreaFilled(false);
+                enemyButtons[y][x] = FieldButtons.initButtonForField(FieldButtons.empty);
                 enemyButtons[y][x].addActionListener(e -> listener.makeShot(finalY * fieldWidth + finalX));
                 enemyField.add(enemyButtons[y][x]);
             }
@@ -59,7 +56,7 @@ public class GamePanel extends ShipsPanel {
     }
 
     public void updateGameFields(String userField, String computerField) {
-        updateField(userField, userButtons);
-        updateField(computerField, enemyButtons);
+        FieldButtons.updateField(fieldWidth, fieldHeight, userField, userButtons);
+        FieldButtons.updateField(fieldWidth, fieldHeight, computerField, enemyButtons);
     }
 }

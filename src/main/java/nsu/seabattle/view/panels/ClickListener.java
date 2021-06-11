@@ -9,7 +9,7 @@ public interface ClickListener {
 
     void setShips(List<Ship> ships);
 
-    void startGame();
+    void createNewGame();
 
     void openRules();
 

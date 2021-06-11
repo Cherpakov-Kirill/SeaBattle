@@ -1,6 +1,7 @@
 package nsu.seabattle.view.windows;
 
 import nsu.seabattle.config.Config;
+import nsu.seabattle.model.player.Player;
 import nsu.seabattle.model.ship.Ship;
 import nsu.seabattle.presenter.Presenter;
 import nsu.seabattle.view.View;
@@ -10,6 +11,7 @@ import nsu.seabattle.view.panels.SettingShipsPanel;
 import nsu.seabattle.view.panels.StartPanel;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class MainWindow extends JFrame implements View, ClickListener {
@@ -20,62 +22,65 @@ public class MainWindow extends JFrame implements View, ClickListener {
     private static final String NEW_GAME = "New game";
     private static final String RATING = "Records table";
     private static final String EXIT = "Exit";
+    private static final String COMPUTER_NAME = "Computer";
+    private String userName;
     private final Config config;
-
 
     private final StartPanel startPanel;
     private GamePanel gamePanel;
-    private SettingShipsPanel settingShipsPanel;
     private Presenter presenter;
 
     private GameStatistics gameStatistics;
     private RecordsTable tableOfRecords;
-    private Rules rules;
-
-    private void resetParameters() {
-        gameStatistics = null;
-        tableOfRecords = null;
-        rules = null;
-    }
+    private final Rules rules;
 
     public MainWindow(Config config) {
         super(NAME);
-        startPanel = new StartPanel(config);
-        // CR: just pass as constructor parameter
-        startPanel.setClickListener(this);
         this.config = config;
-        // CR: they are already null
-        resetParameters();
-        this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(1300, 1000);
         setupMenu();
+        startPanel = new StartPanel(config, this);
+        rules = new Rules();
+        this.setContentPane(startPanel);
+        this.repaint();
+        this.setResizable(false);
+    }
+
+    private JMenuItem createMenuItem(String name, ActionListener listener) {
+        JMenuItem item = new JMenuItem(name);
+        item.addActionListener(listener);
+        return item;
     }
 
     private void setupMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu(MENU);
-
-        // CR: can have static method like createMenuItem(String name, ActionListener lister)
-        JMenuItem newGameItem = new JMenuItem(NEW_GAME);
-        JMenuItem ratingItem = new JMenuItem(RATING);
-        JMenuItem exitItem = new JMenuItem(EXIT);
-        JMenuItem rules = new JMenuItem(RULES);
-        JMenuItem closeCurrentGame = new JMenuItem(CLOSE_CURRENT_GAME);
-
-        newGameItem.addActionListener(event -> presenter.createNewGame());
-        ratingItem.addActionListener(event -> showRecordTable());
-        exitItem.addActionListener(event -> closeTheGame());
-        rules.addActionListener(event -> openRules());
-        closeCurrentGame.addActionListener(event -> launchTheStartWindow());
-
-        menu.add(newGameItem);
-        menu.add(rules);
-        menu.add(closeCurrentGame);
-        menu.add(ratingItem);
-        menu.add(exitItem);
+        menu.add(createMenuItem(NEW_GAME, e -> createNewGame()));
+        menu.add(createMenuItem(RATING, e -> showRecordTable()));
+        menu.add(createMenuItem(EXIT, e -> closeTheGame()));
+        menu.add(createMenuItem(RULES, e -> openRules()));
+        menu.add(createMenuItem(CLOSE_CURRENT_GAME, e -> enableTheStartWindow()));
         menuBar.add(menu);
         this.setJMenuBar(menuBar);
+    }
+
+    public void visible(boolean var) {
+        this.setVisible(var);
+    }
+
+    private void closeWindow(Disposable obj) {
+        if (obj != null) obj.dispose();
+    }
+
+    public void enableTheStartWindow() {
+        closeWindow(gameStatistics);
+        closeWindow(tableOfRecords);
+        rules.visible(false);
+
+        this.setContentPane(startPanel);
+        this.repaint();
+        this.setVisible(true);
     }
 
     private void showRecordTable() {
@@ -83,7 +88,7 @@ public class MainWindow extends JFrame implements View, ClickListener {
         tableOfRecords = new RecordsTable();
     }
 
-    public void getUserName() {
+    public boolean getUserName() {
         String userName;
         userName = (String) JOptionPane.showInputDialog(
                 this,
@@ -94,28 +99,12 @@ public class MainWindow extends JFrame implements View, ClickListener {
                 null,
                 "User"
         );
+        if (userName == null) return false;
         if (userName.isEmpty()) {
             userName = "NoName";
         }
-        presenter.setUserName(userName);
-    }
-
-    private void closeWindow(Object obj) {
-        if (obj != null) {
-            // CR: create interface Disposable with method dispose() and make all this classes implement it
-            // CR: then you won't have to check which class is this is window
-            if (obj instanceof GameStatistics) ((GameStatistics) obj).dispose();
-            else if (obj instanceof RecordsTable) ((RecordsTable) obj).dispose();
-            else if (obj instanceof Rules) ((Rules) obj).dispose();
-        }
-    }
-
-    private void openSettingShipsPanel() {
-        settingShipsPanel = new SettingShipsPanel(config);
-        settingShipsPanel.setClickListener(this);
-        this.setContentPane(settingShipsPanel);
-        this.repaint();
-        this.setVisible(true);
+        this.userName = userName;
+        return true;
     }
 
     public void askAboutRandom() {
@@ -135,39 +124,34 @@ public class MainWindow extends JFrame implements View, ClickListener {
         else setShips(null);
     }
 
-    ///View interface
+    private void openSettingShipsPanel() {
+        SettingShipsPanel settingShipsPanel = new SettingShipsPanel(config, this);
+        this.setContentPane(settingShipsPanel);
+        this.repaint();
+        this.setVisible(true);
+    }
+
+    private void getInitialParameters() {
+        if (!getUserName()) return;
+        askAboutRandom();
+    }
+
     @Override
     public void attachPresenter(Presenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
-    public void launchTheStartWindow() {
-        closeWindow(gameStatistics);
-        closeWindow(tableOfRecords);
-        closeWindow(rules);
-
-        this.setContentPane(startPanel);
-        this.repaint();
-        this.setVisible(true);
-    }
-
-    @Override
     public void createNewGame() {
         closeWindow(gameStatistics);
         closeWindow(tableOfRecords);
-        closeWindow(rules);
-
-        resetParameters();
-        gamePanel = new GamePanel(config);
-        gamePanel.setClickListener(this);
-        getUserName();
-        askAboutRandom();
+        gamePanel = new GamePanel(config, this);
+        getInitialParameters(); //get name, asking about user settings of ships -> get ships
     }
 
     @Override
-    public void startTheGame(String userField, String computerField, String userName, String enemyName) {
-        gamePanel.setPlayerNames(userName, enemyName);
+    public void startTheGame(String userField, String computerField) {
+        gamePanel.setPlayerNames(userName, COMPUTER_NAME);
         gamePanel.updateGameFields(userField, computerField);
         this.setContentPane(gamePanel);
         this.repaint();
@@ -180,26 +164,19 @@ public class MainWindow extends JFrame implements View, ClickListener {
     }
 
     @Override
-    public void end(String winner) {
-        closeWindow(rules);
+    public void end(Player winner) {
+        rules.visible(false);
         String[] userFieldStat = presenter.getUserFieldStatistics();
         String[] computerFieldStat = presenter.getComputerFieldStatistics();
-        gameStatistics = new GameStatistics(presenter.getUserName(), winner, userFieldStat, computerFieldStat);
-        tableOfRecords = new RecordsTable(winner, Integer.parseInt(computerFieldStat[0]));
+        String winnerName = winner == Player.USER ? userName : COMPUTER_NAME;
+        gameStatistics = new GameStatistics(userName, winnerName, userFieldStat, computerFieldStat);
+        tableOfRecords = new RecordsTable(winnerName, Integer.parseInt(computerFieldStat[0]));
         System.out.println("THE END");
-    }
-
-    ///ClickListener interface
-    @Override
-    public void startGame() {
-        presenter.createNewGame();
     }
 
     @Override
     public void openRules() {
-        closeWindow(rules);
-        // CR: I think you may just hide it, not recreate
-        rules = new Rules(config);
+        rules.visible(true);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package nsu.seabattle.model;
 
-import nsu.seabattle.config.Config;
 import nsu.seabattle.model.ship.*;
 
 import java.util.ArrayList;
@@ -39,17 +38,17 @@ public class ModelUtils {
         ships.add(new Ship(firstCoordinate, lastCoordinate));
     }
 
-    private static boolean checkUserCoordinateForShip(Config config, char[][] field, int x, int y) {
-        if (x >= config.fieldWidth || x < 0) return false;
-        if (y >= config.fieldHeight || y < 0) return false;
+    private static boolean checkUserCoordinateForShip(int fieldWidth, int fieldHeight, char[][] field, int x, int y) {
+        if (x >= fieldWidth || x < 0) return false;
+        if (y >= fieldHeight || y < 0) return false;
         return field[y][x] == '#';
     }
 
-    private static boolean checkIntervalOnMapUser(Config config, char[][] field, Position FirstPair, Position LastPair) {
-        if (FirstPair.x >= config.fieldWidth || FirstPair.x < 0) return false;
-        if (FirstPair.y >= config.fieldHeight || FirstPair.y < 0) return false;
-        if (LastPair.x >= config.fieldWidth || LastPair.x < 0) return false;
-        if (LastPair.y >= config.fieldHeight || LastPair.y < 0) return false;
+    private static boolean checkIntervalOnMapUser(int fieldWidth, int fieldHeight, char[][] field, Position FirstPair, Position LastPair) {
+        if (FirstPair.x >= fieldWidth || FirstPair.x < 0) return false;
+        if (FirstPair.y >= fieldHeight || FirstPair.y < 0) return false;
+        if (LastPair.x >= fieldWidth || LastPair.x < 0) return false;
+        if (LastPair.y >= fieldHeight || LastPair.y < 0) return false;
 
         if (FirstPair.x == LastPair.x) {
             int xPos = FirstPair.x;
@@ -62,17 +61,17 @@ public class ModelUtils {
                 yPosStart = LastPair.y;
                 yPosFinish = FirstPair.y;
             }
-            if (checkUserCoordinateForShip(config, field, xPos, yPosStart - 1)) return false;
-            if (checkUserCoordinateForShip(config, field, xPos + 1, yPosStart - 1)) return false;
-            if (checkUserCoordinateForShip(config, field, xPos - 1, yPosStart - 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos, yPosStart - 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos + 1, yPosStart - 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos - 1, yPosStart - 1)) return false;
 
-            if (checkUserCoordinateForShip(config, field, xPos, yPosFinish + 1)) return false;
-            if (checkUserCoordinateForShip(config, field, xPos + 1, yPosFinish + 1)) return false;
-            if (checkUserCoordinateForShip(config, field, xPos - 1, yPosFinish + 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos, yPosFinish + 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos + 1, yPosFinish + 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos - 1, yPosFinish + 1)) return false;
             while (yPosStart <= yPosFinish) {
-                if (checkUserCoordinateForShip(config, field, xPos, yPosStart)) return false;
-                if (checkUserCoordinateForShip(config, field, xPos - 1, yPosStart)) return false;
-                if (checkUserCoordinateForShip(config, field, xPos + 1, yPosStart)) return false;
+                if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos, yPosStart)) return false;
+                if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos - 1, yPosStart)) return false;
+                if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPos + 1, yPosStart)) return false;
                 yPosStart++;
             }
 
@@ -87,25 +86,25 @@ public class ModelUtils {
                 xPosStart = LastPair.x;
                 xPosFinish = FirstPair.x;
             }
-            if (checkUserCoordinateForShip(config, field, xPosStart - 1, yPos)) return false;
-            if (checkUserCoordinateForShip(config, field, xPosStart - 1, yPos + 1)) return false;
-            if (checkUserCoordinateForShip(config, field, xPosStart - 1, yPos - 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosStart - 1, yPos)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosStart - 1, yPos + 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosStart - 1, yPos - 1)) return false;
 
-            if (checkUserCoordinateForShip(config, field, xPosFinish + 1, yPos)) return false;
-            if (checkUserCoordinateForShip(config, field, xPosFinish + 1, yPos + 1)) return false;
-            if (checkUserCoordinateForShip(config, field, xPosFinish + 1, yPos - 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosFinish + 1, yPos)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosFinish + 1, yPos + 1)) return false;
+            if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosFinish + 1, yPos - 1)) return false;
             while (xPosStart <= xPosFinish) {
-                if (checkUserCoordinateForShip(config, field, xPosStart, yPos)) return false;
-                if (checkUserCoordinateForShip(config, field, xPosStart, yPos - 1)) return false;
-                if (checkUserCoordinateForShip(config, field, xPosStart, yPos + 1)) return false;
+                if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosStart, yPos)) return false;
+                if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosStart, yPos - 1)) return false;
+                if (checkUserCoordinateForShip(fieldWidth, fieldHeight, field, xPosStart, yPos + 1)) return false;
                 xPosStart++;
             }
         }
         return true;
     }
 
-    private static void findNewPositionForCurrentShip(Config config, char[][] field, List<Ship> ships, int numberOfDecks, int numberOfShip) {
-        int squareOfMap = config.fieldHeight * config.fieldWidth;
+    private static void findNewPositionForCurrentShip(int fieldWidth, int fieldHeight, char[][] field, List<Ship> ships, int numberOfDecks, int numberOfShip) {
+        int squareOfMap = fieldHeight * fieldWidth;
         boolean correctNewPosition = false;
         Position FirstCoordinates = null;
         Position LastCoordinates = null;
@@ -117,25 +116,25 @@ public class ModelUtils {
             int randomOrientation = randomize(4);
             switch (randomOrientation) {
                 case 0:
-                    if (checkIntervalOnMapUser(config, field, FirstCoordinates, new Position(x + (numberOfDecks - 1), y))) {
+                    if (checkIntervalOnMapUser(fieldWidth, fieldHeight, field, FirstCoordinates, new Position(x + (numberOfDecks - 1), y))) {
                         LastCoordinates = new Position(x + (numberOfDecks - 1), y);
                         correctNewPosition = true;
                     }
                     break;
                 case 1:
-                    if (checkIntervalOnMapUser(config, field, FirstCoordinates, new Position(x - (numberOfDecks - 1), y))) {
+                    if (checkIntervalOnMapUser(fieldWidth, fieldHeight, field, FirstCoordinates, new Position(x - (numberOfDecks - 1), y))) {
                         LastCoordinates = new Position(x - (numberOfDecks - 1), y);
                         correctNewPosition = true;
                     }
                     break;
                 case 2:
-                    if (checkIntervalOnMapUser(config, field, FirstCoordinates, new Position(x, y + (numberOfDecks - 1)))) {
+                    if (checkIntervalOnMapUser(fieldWidth, fieldHeight, field, FirstCoordinates, new Position(x, y + (numberOfDecks - 1)))) {
                         LastCoordinates = new Position(x, y + (numberOfDecks - 1));
                         correctNewPosition = true;
                     }
                     break;
                 case 3:
-                    if (checkIntervalOnMapUser(config, field, FirstCoordinates, new Position(x, y - (numberOfDecks - 1)))) {
+                    if (checkIntervalOnMapUser(fieldWidth, fieldHeight, field, FirstCoordinates, new Position(x, y - (numberOfDecks - 1)))) {
                         LastCoordinates = new Position(x, y - (numberOfDecks - 1));
                         correctNewPosition = true;
                     }
@@ -145,18 +144,18 @@ public class ModelUtils {
         setShipOnField(field, ships, FirstCoordinates, LastCoordinates, numberOfDecks, numberOfShip);
     }
 
-    public static List<Ship> generateShips(Config config) {
-        char[][] field = new char[config.fieldHeight][config.fieldWidth];
-        for (int i = 0; i < config.fieldHeight; i++) {
-            for (int j = 0; j < config.fieldWidth; j++) {
+    public static List<Ship> generateShips(int fieldWidth, int fieldHeight, List<Integer> shipsCount) {
+        char[][] field = new char[fieldHeight][fieldWidth];
+        for (int i = 0; i < fieldHeight; i++) {
+            for (int j = 0; j < fieldWidth; j++) {
                 field[i][j] = '-';
             }
         }
         List<Ship> ships = new ArrayList<>();
         int numberOfDecks = 4;
-        for (int numberShipsOfCurrType : config.ships) {
+        for (int numberShipsOfCurrType : shipsCount) {
             for (int numberOfShip = 0; numberOfShip < numberShipsOfCurrType; numberOfShip++) {
-                findNewPositionForCurrentShip(config, field, ships, numberOfDecks, numberOfShip);
+                findNewPositionForCurrentShip(fieldWidth, fieldHeight, field, ships, numberOfDecks, numberOfShip);
             }
             numberOfDecks--;
         }
