@@ -1,9 +1,7 @@
 import nsu.seabattle.config.Config;
 import nsu.seabattle.model.Model;
 import nsu.seabattle.model.ModelUtils;
-import nsu.seabattle.model.Shot;
 import nsu.seabattle.model.player.Player;
-import nsu.seabattle.model.ship.Position;
 import nsu.seabattle.model.ship.Ship;
 
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ public class TestsForModel {
     @BeforeClass
     public static void initShips() {
         System.out.println("InitShips");
-        ships = ModelUtils.generateShips(config);
+        ships = ModelUtils.generateShips(config.fieldWidth, config.fieldHeight, config.ships);
     }
 
     @BeforeClass
